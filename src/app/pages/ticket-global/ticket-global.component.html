@@ -1,0 +1,234 @@
+<p-toast position="top-right"></p-toast>
+
+ <div class="row">
+    <div class="col">
+        <div class="card">
+               <div class="card-body">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                        <button pButton pRipple label="Ticket Global" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog()" [hidden]="!admin" ></button>
+                        
+                    </ng-template>
+            
+                     
+                </p-toolbar>
+
+                <p-table 
+                    [value] ="listTicket"
+                    [rows]="10"
+                    [paginator]="true"
+                    responsiveLayout="scroll" 
+                    [rowHover]="true" 
+                    dataKey="id"
+                    currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Registros" 
+                    [showCurrentPageReport]="true">
+                    <ng-template pTemplate="caption">
+                        <div class="flex align-items-center justify-content-between">
+                            <h5 class="m-0">Ticket Globales / Fallas masivas</h5>
+                        </div>
+                    </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>#Ticket</th>
+                        <th>Titulo</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Creado por</th>
+                        <th></th>
+                    </tr>
+
+                </ng-template>
+                <ng-template pTemplate="body" let-global>
+                    <tr>
+                         <td>#{{global.ticket_global_id}}</td>
+                        <td>{{global.titulo}} </td>
+                        <td>{{global.descripcion}}</td>
+                        <td>{{global.ticket_global_created}} - {{global.ticket_global_hora}}</td>
+                        <td>{{global.ticket_global_status}}</td>
+                        <td>{{global.user_id}}</td>
+                        <td>
+                            
+                            <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"(click)="verCus(global,'detalle')" ></button>
+                            <button pButton pRipple icon="pi pi-database" class="p-button-rounded p-button-secondary mr-2" (click)="verCus(global,'cus')"></button>
+                            <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-warning mr-2" [hidden]="!admin" (click)="deleteTicketGlobal(global)"></button>
+                            
+
+                       
+                        </td>
+                    </tr>
+                </ng-template>
+
+                </p-table>
+
+               </div>
+             
+            
+        </div>
+    </div>
+    <div class="col" *ngIf="selected">
+       <!--agregar cus-->
+       <ng-container *ngIf="relationContratos">
+        <div class="card">
+            <div class="card-body">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                        <button pButton pRipple label="Contrato" icon="pi pi-plus" class="p-button-success mr-2" (click)="newContrato()" ></button>
+                        
+                    </ng-template>
+            
+                     
+                </p-toolbar>
+    
+                <p-table
+                [value]="listCus"[rows]="10"
+                [paginator]="true"
+                responsiveLayout="scroll" 
+                [rowHover]="true" 
+                dataKey="id"
+                currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Registros" 
+                [showCurrentPageReport]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex align-items-center justify-content-between">
+                        <h5 class="m-0">Relación de contratos que afecta</h5>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>
+                            <div class="flex justify-content-center align-items-center">
+                                Contrato
+                                <p-columnFilter type="text" field="contrato_id" display="menu"></p-columnFilter>
+                            </div>
+                        </th>
+                        <th>Usuario</th>
+                        <th></th>
+                    </tr>
+                    
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td>{{item.ticket_global_cus_fecha}} | {{item.ticket_global_cus_hora}}</td>
+                        <td>
+                            
+                            {{item.contrato_id}}</td>
+                        <td></td>
+                    </tr>
+    
+                </ng-template>
+                </p-table>
+               
+            </div>
+           </div>
+       </ng-container>
+       <ng-container *ngIf="relationDetalle">
+        <div class="card">
+            <div class="card-body">
+                <p-toolbar styleClass="mb-4">
+                 <ng-template pTemplate="left">
+                     <button pButton pRipple label="Seguimiento" icon="pi pi-plus" class="p-button-success mr-2" (click)="addDetalle()" [hidden]="!admin" ></button>
+                     
+                 </ng-template>                  
+                </p-toolbar>
+                <p-table
+                [value] ="listDetalle"
+                [rows]="10"
+                [paginator]="true"
+                responsiveLayout="scroll" 
+                [rowHover]="true" 
+                dataKey="id"
+                currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Registros" 
+                [showCurrentPageReport]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex align-items-center justify-content-between">
+                        <h5 class="m-0">Detalle de seguimiento</h5>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Actualizado por</th>
+
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-detalle>
+                    <tr>
+                        <td>{{detalle.detalle_ticket_global_comentario}}</td>
+                        <td>{{detalle.usuario_id}}</td>
+                        <td>{{detalle.detalle_ticket_global_fecha}}-{{detalle.detalle_ticket_global_hora}}</td>
+                    </tr>
+                </ng-template>
+                </p-table>
+            </div>
+        </div>
+       </ng-container>
+    </div>
+ </div>
+
+ <!--Ticket Global-->
+ <p-dialog [(visible)]="dialog" [style]="{width: '450px'}" header="Nuevo Tikect" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+       <form [formGroup]="editform"  (submit)="onSave()">
+        <div class="field">
+            <label for="titulo">Titulo</label>
+            <input type="text" pInputText id="titulo"  required autofocus formControlName="titulo"/>
+        </div>
+        <div class="field">
+            <div class="mb-3">
+                <label for="validationTextarea">Descripción</label>
+                <textarea class="form-control is-invalid" id="validationTextarea"   formControlName="descripcion"></textarea>
+                
+              </div>
+        </div>
+        <hr>
+        <div class="field">
+            
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success" [loading]="buttonTicket" ></button>
+        </div>
+       </form>  
+        
+    </ng-template>
+ 
+</p-dialog>
+
+<!--contrato dialog-->
+<p-dialog [(visible)]="contrato" [style]="{width: '450px'}" header="agregar contrato" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+       <form [formGroup]="editCus"  (submit)="onSaveCus()">
+        <div class="field">
+            <label for="contrato">Contrato</label>
+            <input type="text" pInputText id="contrato"  required autofocus formControlName="contrato_id"/>
+        </div>
+       <hr>
+        <div class="field">
+            
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success" [loading]="buttonCus" ></button>
+        </div>
+       </form>  
+        
+    </ng-template>
+ 
+</p-dialog>
+
+ <!--Seguimiento-->
+<p-dialog [(visible)]="seguimiento" [style]="{width: '450px'}" header="agregar seguimiento" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+       <form [formGroup]="editSeguimiento"  (submit)="onSaveDetalle()">
+        <div class="field">
+            <div class="mb-3">
+                <label for="Comentaro">Comentaro</label>
+                <textarea class="form-control is-invalid" id="Comentaro" required formControlName="comentario"></textarea>
+                
+              </div>
+        </div>
+       <hr>
+        <div class="field">
+            
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success" [loading]="buttonDetall" ></button>
+        </div>
+       </form>  
+        
+    </ng-template>
+ 
+</p-dialog>

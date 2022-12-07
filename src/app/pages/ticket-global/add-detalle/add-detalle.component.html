@@ -1,0 +1,17 @@
+<p-dialog  [(visible)]="visible" [style]="{width: '750px'}" header="agregar contrato" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        
+        <div class="field">
+            <label for="contrato">Contrato</label>
+            <input type="text" pInputText id="contrato"  required autofocus />
+        </div>
+       <hr>
+        <div class="field">
+            
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-success"  ></button>
+        </div>
+        
+        
+    </ng-template>
+ 
+</p-dialog>
