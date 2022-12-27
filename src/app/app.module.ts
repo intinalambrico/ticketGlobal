@@ -18,9 +18,13 @@ import { HttpClientModule } from '@angular/common/http';
 import {DialogModule} from 'primeng/dialog';
 import {  InputTextModule } from 'primeng/inputtext';
 import {ToastModule} from 'primeng/toast';
+import {CalendarModule} from 'primeng/calendar';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {GalleriaModule} from 'primeng/galleria';
+import {FileUploadModule} from 'primeng/fileupload';
 
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddDetalleComponent } from './pages/ticket-global/add-detalle/add-detalle.component';
 @NgModule({
   declarations: [
@@ -41,7 +45,13 @@ import { AddDetalleComponent } from './pages/ticket-global/add-detalle/add-detal
     DialogModule,
     InputTextModule, 
     ReactiveFormsModule,
-    ToastModule
+    ToastModule,
+    CalendarModule,
+    FormsModule,
+    InputTextareaModule,
+    GalleriaModule,
+    FileUploadModule
+    
     
   ],
   providers: [],

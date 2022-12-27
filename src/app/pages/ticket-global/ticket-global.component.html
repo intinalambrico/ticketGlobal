@@ -7,12 +7,17 @@
                 <p-toolbar styleClass="mb-4">
                     <ng-template pTemplate="left">
                         <button pButton pRipple label="Ticket Global" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog()" [hidden]="!admin" ></button>
+                        <button pButton pRipple label="Buscar" icon="pi pi-search" class="p-button-success mr-2" (click)="openCalendar()"></button>
                         
                     </ng-template>
             
                      
                 </p-toolbar>
-
+                <span class="mb-3" *ngIf="viewCalendar">
+                    <p-calendar [(ngModel)]="rangeDates" selectionMode="range" [readonlyInput]="true" inputId="range" dateFormat="yy-mm-dd" [showIcon]="true" ></p-calendar>
+                    <button pButton pRipple icon="pi pi-search" class="p-button-rounded p-button-success mr-2" (click)="searchListGlobal()" ></button>
+                </span>
+                <hr>
                 <p-table 
                     [value] ="listTicket"
                     [rows]="10"
@@ -29,7 +34,13 @@
                     </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th>#Ticket</th>
+                        <th> 
+                            <div class="flex justify-content-center align-items-center">
+                                Ticket
+                                <p-columnFilter type="text" field="ticket_global_id" display="menu"></p-columnFilter>
+                            </div>
+
+                        </th>
                         <th>Titulo</th>
                         <th>Descripción</th>
                         <th>Fecha</th>
@@ -43,12 +54,12 @@
                     <tr>
                          <td>#{{global.ticket_global_id}}</td>
                         <td>{{global.titulo}} </td>
-                        <td>{{global.descripcion}}</td>
+                        <td>{{global.descrip}}<button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text" (click)="verMasGrande(global , 'global')"></button></td>
                         <td>{{global.ticket_global_created}} - {{global.ticket_global_hora}}</td>
                         <td>{{global.ticket_global_status}}</td>
                         <td>{{global.user_id}}</td>
                         <td>
-                            
+                            <button pButton pRipple icon="pi pi-images" class="p-button-rounded p-button-primary mr-2"(click)="verCus(global,'images')" ></button>
                             <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"(click)="verCus(global,'detalle')" ></button>
                             <button pButton pRipple icon="pi pi-database" class="p-button-rounded p-button-secondary mr-2" (click)="verCus(global,'cus')"></button>
                             <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-warning mr-2" [hidden]="!admin" (click)="deleteTicketGlobal(global)"></button>
@@ -73,7 +84,7 @@
             <div class="card-body">
                 <p-toolbar styleClass="mb-4">
                     <ng-template pTemplate="left">
-                        <button pButton pRipple label="Contrato" icon="pi pi-plus" class="p-button-success mr-2" (click)="newContrato()" ></button>
+                        <button pButton pRipple label="Contrato" icon="pi pi-plus" class="p-button-success mr-2" (click)="newContrato()" *ngIf="tempItem.ticket_global_status == 'En proceso'"></button>
                         
                     </ng-template>
             
@@ -113,7 +124,7 @@
                         <td>
                             
                             {{item.contrato_id}}</td>
-                        <td></td>
+                        <td>{{item.name_cliente}}</td>
                     </tr>
     
                 </ng-template>
@@ -154,7 +165,7 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-detalle>
                     <tr>
-                        <td>{{detalle.detalle_ticket_global_comentario}}</td>
+                        <td>{{detalle.descrip}}<button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text" (click)="verMasGrande(detalle ,'detalle')"></button></td>
                         <td>{{detalle.usuario_id}}</td>
                         <td>{{detalle.detalle_ticket_global_fecha}}-{{detalle.detalle_ticket_global_hora}}</td>
                     </tr>
@@ -163,6 +174,42 @@
             </div>
         </div>
        </ng-container>
+    </div>
+ </div>
+
+ <!--row galeria-->
+ <div class="row" *ngIf="selectedImages">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <p-fileUpload name="myfile[]" 
+                [customUpload]="true" 
+                chooseLabel="Seleccionar" 
+                uploadLabel="Cargar" 
+                cancelLabel="cancelar"
+                (uploadHandler)="myUploader($event.files[0])"
+                ></p-fileUpload>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title"><i class="pi pi-images"></i> Imagenes</h4>
+
+                <!--<p-galleria [value]="images" [containerStyle]="{'max-width': '800px'}">
+                    <ng-template pTemplate="item" let-item>
+                        <img [src]="item.previewImageSrc" [alt]="item.alt" style="width: 100%; display: block;" />
+                    </ng-template>
+                </p-galleria>-->
+                <div *ngIf="images" class="grid" style="max-width: 400px;">
+                    <div *ngFor="let image of images; let index = index;" class="col-3" key="index">
+                        <img [src]="image.thumbnailImageSrc" [alt]="image.alt" style="cursor: pointer"  />
+                    </div>
+                </div>
+                
+            </div>
+        </div>
     </div>
  </div>
 
@@ -198,7 +245,7 @@
        <form [formGroup]="editCus"  (submit)="onSaveCus()">
         <div class="field">
             <label for="contrato">Contrato</label>
-            <input type="text" pInputText id="contrato"  required autofocus formControlName="contrato_id"/>
+            <input type="text" pInputText id="contrato"    autofocus formControlName="contrato_id"/>
         </div>
        <hr>
         <div class="field">
@@ -217,8 +264,8 @@
        <form [formGroup]="editSeguimiento"  (submit)="onSaveDetalle()">
         <div class="field">
             <div class="mb-3">
-                <label for="Comentaro">Comentaro</label>
-                <textarea class="form-control is-invalid" id="Comentaro" required formControlName="comentario"></textarea>
+                <label for="Comentaro">Comentario</label>
+                <textarea class="form-control is-invalid" id="Comentaro"  autofocus formControlName="comentario"></textarea>
                 
               </div>
         </div>
@@ -231,4 +278,13 @@
         
     </ng-template>
  
+</p-dialog>
+<!--ver description-->
+<p-dialog [(visible)]="masgrande" [style]="{width: '450px'}"   [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <textarea pInputTextarea [(ngModel)]="masgrandeItem" [autoResize]="true"></textarea>
+        </div>
+    </ng-template>
+    
 </p-dialog>

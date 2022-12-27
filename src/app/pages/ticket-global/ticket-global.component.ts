@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {MessageService} from 'primeng/api';
+import { DatePipe } from '@angular/common';
+import { ThisReceiver } from '@angular/compiler';
 
 @Component({
   selector: 'app-ticket-global',
@@ -12,9 +14,21 @@ import {MessageService} from 'primeng/api';
   providers:[MessageService]
 })
 export class TicketGlobalComponent implements OnInit {
+//descripcionmasgrande
+public masgrande:boolean = false;
+public masgrandeItem:any[] = [];
 
-
+  //buscar x fecha
+  public rangeDates:any[] = [];
+  public viewCalendar:boolean = false;
+  public pipe:DatePipe = new DatePipe('en-US');
+  /***
+ * columnas
+ */
+  //columna dos de row
   public selected:boolean=false;
+  //fila de imagenes
+  public selectedImages:boolean = false;
 
   public listTicket:any[] =[];
 
@@ -38,10 +52,15 @@ export class TicketGlobalComponent implements OnInit {
   public relationContratos:boolean = false;
   public relationDetalle:boolean = false;
 
+  //images
+  public images:any[] = [];
+
+
   //buttonLoading
   public buttonDetall:boolean = false;
   public buttonTicket:boolean = false;
   public buttonCus:boolean = false;
+  public buttonImages:boolean = false;
 
   public editform = this.fb.group({
     titulo: ['', Validators.required],
@@ -76,6 +95,7 @@ export class TicketGlobalComponent implements OnInit {
        }
     })
     this.getListTicketActivo();
+    this.getListImagenes();
   }
 
   newContrato()
@@ -92,6 +112,11 @@ export class TicketGlobalComponent implements OnInit {
   {
       this.ticketGlobalService.getListGlobal().subscribe((resp:any) => {
         this.listTicket = resp.response; 
+        for(let item of this.listTicket){
+
+          item.descrip = item.descripcion.substr(0,30)
+        }
+         
       })
   }
 
@@ -122,19 +147,23 @@ export class TicketGlobalComponent implements OnInit {
   verCus(item:any , opt:string)
   { 
 
-    this.selected = true;
+    
     this.tempItem = item;
     if(opt == 'cus')
     {
+      this.selected = true;
       this.relationContratos = true;
       this.relationDetalle = false;
       this.getListCus();
 
     }else if(opt == 'detalle')
-    {
+    { this.selected = true;
       this.relationContratos = false;
       this.relationDetalle = true;
       this.getListSeguimiento();
+    }else if(opt == 'images')
+    {
+      this.selectedImages =  true;
     }
    
   }
@@ -152,7 +181,8 @@ export class TicketGlobalComponent implements OnInit {
         this.getListCus();
         
       }, error => {
-        console.log(error);
+        this.buttonCus = false;
+        this.addMessage('error' , 'Error' , `Error server : ${error.error.response} el contrato`);
       })
     }else{
       this.buttonCus = false;
@@ -202,8 +232,16 @@ export class TicketGlobalComponent implements OnInit {
   }
   getListSeguimiento()
   {
+     
     this.ticketGlobalService.detalleTicketList(this.tempItem.ticket_global_id).subscribe((resp:any) => {
       this.listDetalle = resp.response;
+      
+      for(let item of this.listDetalle)
+      {
+        item.descrip = item.detalle_ticket_global_comentario.substr(0,45)
+      }
+      console.log(this.listDetalle);
+       
     })
   }
 
@@ -211,6 +249,55 @@ export class TicketGlobalComponent implements OnInit {
     this.messageService.add({severity:sev, summary:sum, detail:det});
   }
 
- 
 
+  ///procesos de busqueda x fecha
+  openCalendar()
+  {
+    this.viewCalendar = true;
+  }
+
+  searchListGlobal()
+  {
+    const range = {
+      valor1: this.pipe.transform(this.rangeDates[0] , 'yyyy-MM-dd'),
+      valor2: this.pipe.transform(this.rangeDates[1], 'yyyy-MM-dd'),
+    }
+
+    this.ticketGlobalService.searchByBetween(range).subscribe((resp:any) =>{
+      this.viewCalendar = false;
+      this.listTicket = resp.response;
+
+      for(let item of this.listTicket)
+      {
+        item.descrip = item.descripcion.substr(0,30)
+      }
+    } )
+  }
+ 
+//ver mas grande la description
+verMasGrande(item:any , option:string)
+{
+  if(option == 'detalle')
+  {
+    this.masgrandeItem = item.detalle_ticket_global_comentario;
+  }else{
+    this.masgrandeItem = item.descripcion
+  }
+  this.masgrande = true;
+}
+
+//imagenes
+getListImagenes()
+{
+  
+}
+
+myUploader(event:File)
+{
+  console.log(this.tempItem);
+  this.ticketGlobalService.saveImagen(event , this.tempItem).subscribe((resp:any) => {
+     console.log(resp.response);
+  })
+
+}
 }
